@@ -1,9 +1,10 @@
 {
   "version": 2,
   "routes": [
+    { "src": "/", "dest": "/index.html" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
-    { "src": "/ai/deepseek", "dest": "/ai/deepseek.js" },
     { "src": "/ai/deepseek.html", "dest": "/ai/deepseek.html" },
+    { "src": "/ai/deepseek", "dest": "/api/deepseek.js" },
     { "src": "/ai", "dest": "/ai/index.html" },
     { "src": "/ai/", "dest": "/ai/index.html" },
     { "src": "/maker/brat", "dest": "/maker/brat.html" },
@@ -13,11 +14,11 @@
     { "src": "/downloader", "dest": "/downloader/index.html" },
     { "src": "/downloader/", "dest": "/downloader/index.html" },
     { "src": "/tools", "dest": "/tools/index.html" },
-    { "src": "/stalker/github", "dest": "/stalker/github.js" },
+    { "src": "/stalker/github", "dest": "/api/github.js" },
     { "src": "/stalker/github.html", "dest": "/stalker/github.html" },
     { "src": "/stalker", "dest": "/stalker/index.html" },
     { "src": "/search", "dest": "/search/index.html" },
     { "src": "/konvert", "dest": "/konvert/index.html" },
-    { "src": "/", "dest": "/index.html" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
