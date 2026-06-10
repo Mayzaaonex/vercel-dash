@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MayzaaDash - API Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #050505;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { text-align: center; }
+        h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+        .subtitle { color: #64748b; font-size: 14px; margin-bottom: 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 700px; }
+        .card {
+            background: rgba(15,15,15,0.95);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-4px);
+        }
+        .card-icon { font-size: 32px; margin-bottom: 8px; }
+        .card-title { font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MayzaaDash</h1>
+        <p class="subtitle">API Tools & Endpoints — gratis, cepat, tanpa API key.</p>
+
+        <div class="grid">
+            <a href="/ai" class="card">
+                <div class="card-icon">🤖</div>
+                <div class="card-title">AI API</div>
+            </a>
+            <a href="/maker" class="card">
+                <div class="card-icon">⚙️</div>
+                <div class="card-title">Maker</div>
+            </a>
+            <a href="/downloader" class="card">
+                <div class="card-icon">⬇️</div>
+                <div class="card-title">Downloader</div>
+            </a>
+            <a href="/stalker" class="card">
+                <div class="card-icon">👁️</div>
+                <div class="card-title">Stalker</div>
+            </a>
+            <a href="/tools" class="card">
+                <div class="card-icon">🔧</div>
+                <div class="card-title">Tools</div>
+            </a>
+            <a href="/search" class="card">
+                <div class="card-icon">🔍</div>
+                <div class="card-title">Search</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
