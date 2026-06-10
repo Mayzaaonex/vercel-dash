@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "ai/deepseek.js": {
+      "runtime": "@vercel/node@3",
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    { "src": "/ai/deepseek", "dest": "/ai/deepseek.js" },
+    { "src": "/ai/deepseek.html", "dest": "/ai/deepseek.html" },
+    { "src": "/ai", "dest": "/ai/index.html" }
+  ]
+}
