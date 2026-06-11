@@ -203,9 +203,57 @@ function initChart() {
 
     trafficChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: trafficLabels, datasets: [{ data: trafficData, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.03)', fill: true, tension: 0.4, borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#fff', pointHoverRadius: 5, pointHoverBackgroundColor: '#fff' }] },
-        options: { responsive: true, maintainAspectRatio: false, animation: { duration: 500 }, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 10 } }, y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 4 }, beginAtZero: true } } }
+        data: { 
+            labels: trafficLabels, 
+            datasets: [{ 
+                data: trafficData, 
+                borderColor: '#ffffff', 
+                backgroundColor: 'rgba(255,255,255,0.03)', 
+                fill: true, 
+                tension: 0.4, 
+                borderWidth: 1.5, 
+                pointRadius: 2, 
+                pointBackgroundColor: '#fff', 
+                pointHoverRadius: 5, 
+                pointHoverBackgroundColor: '#fff' 
+            }] 
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            animation: { duration: 500 }, 
+            plugins: { legend: { display: false } }, 
+            scales: { 
+                x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 10 } }, 
+                y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 4 }, beginAtZero: true } 
+            } 
+        }
     });
+}
+
+// ========== AUTO-DETECT ENDPOINTS ==========
+function updateEndpointList(history) {
+    const endpointList = document.getElementById('endpoint-list');
+    if (!endpointList) return;
+
+    const endpoints = {};
+    history.forEach(h => {
+        const type = h.type || 'api';
+        endpoints[type] = (endpoints[type] || 0) + 1;
+    });
+
+    if (Object.keys(endpoints).length === 0) {
+        endpointList.innerHTML = `<div class="endpoint-item"><span class="endpoint-method">—</span><span class="endpoint-path">No data yet</span><span class="endpoint-count mono">0</span></div>`;
+        return;
+    }
+
+    let html = '';
+    for (const [name, count] of Object.entries(endpoints)) {
+        if (name === 'api' || name === 'track' || name === 'stats') continue;
+        html += `<div class="endpoint-item"><span class="endpoint-method post">POST</span><span class="endpoint-path">/${name}</span><span class="endpoint-count mono">${count.toLocaleString()}</span></div>`;
+    }
+
+    endpointList.innerHTML = html || `<div class="endpoint-item"><span class="endpoint-method">—</span><span class="endpoint-path">No public endpoints</span><span class="endpoint-count mono">0</span></div>`;
 }
 
 // ========== FETCH STATS ==========
@@ -243,10 +291,8 @@ async function fetchStats() {
         document.getElementById('trend-credits').textContent = newRequests > 0 ? `↑ ${newRequests}` : '↑ 0';
         document.getElementById('trend-credits').className = newRequests > 0 ? 'stat-trend up' : 'stat-trend down';
 
-        // Update Endpoint Counts
-        document.getElementById('ep-track').textContent = (data.total || 0).toLocaleString();
-        document.getElementById('ep-stats').textContent = Math.floor((data.total || 0) * 0.8).toLocaleString();
-        document.getElementById('ep-brat').textContent = Math.floor((data.total || 0) * 0.6).toLocaleString();
+        // Auto-detect endpoints
+        updateEndpointList(data.history || []);
 
         // Update Activity
         const activityList = document.getElementById('activity-list');
@@ -256,7 +302,7 @@ async function fetchStats() {
                 const time = new Date(h.time);
                 const diff = Math.floor((Date.now() - time) / 1000);
                 const ago = diff < 60 ? `${diff}s ago` : diff < 3600 ? `${Math.floor(diff/60)}m ago` : `${Math.floor(diff/3600)}h ago`;
-                return `<div class="activity-item"><div class="activity-dot"></div><div class="activity-info"><span class="activity-text">${h.type || 'API Request'}</span><span class="activity-time">${ago}</span></div><span class="activity-status success">200</span></div>`;
+                return `<div class="activity-item"><div class="activity-dot"></div><div class="activity-info"><span class="activity-text">${h.type || 'API Request'}</span><span class="activity-time">${ago}</span></div></div>`;
             }).join('');
         }
 
