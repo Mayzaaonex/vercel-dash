@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perplexity AI - MayzaaDash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <style>
+        .test-container {
+            background: linear-gradient(135deg, rgba(15,15,15,0.9), rgba(10,10,10,0.95));
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 16px;
+            padding: 24px; backdrop-filter: blur(10px);
+        }
+        .log-box {
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px; padding: 16px;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px;
+            color: #4ade80; max-height: 400px; overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all; margin-top: 12px;
+        }
+        .log-box .error { color: #ef4444; }
+        .log-box .info { color: #94a3b8; }
+        textarea, select {
+            width: 100%; background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+            padding: 14px; color: #fff; font-size: 14px; outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        textarea { resize: vertical; min-height: 100px; }
+        textarea:focus, select:focus { border-color: #6366f1; }
+        .btn-test {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; border: none; padding: 12px 24px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px;
+        }
+        .btn-test:hover { opacity: 0.9; }
+        .btn-test:disabled { opacity: 0.5; cursor: not-allowed; }
+        .api-url-box {
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px; padding: 12px;
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            color: #4ade80; word-break: break-all; margin-top: 8px;
+        }
+        .btn-copy {
+            font-size: 11px; background: transparent; border: 1px solid rgba(255,255,255,0.1);
+            color: #aaa; padding: 6px 14px; border-radius: 8px; cursor: pointer; margin-top: 8px;
+        }
+        .btn-copy:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .sources-box { margin-top: 12px; }
+        .source-link {
+            display: inline-block; color: #818cf8; font-size: 11px;
+            margin: 2px 4px; text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <div class="max-w-4xl mx-auto">
+
+            <div class="mb-8">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">
+                    🔍 Perplexity <span class="text-gray-400 font-light">AI</span>
+                </h1>
+                <p class="text-xs text-gray-600 mt-1">Perplexity AI Scraper — search + answer gratis</p>
+            </div>
+
+            <div class="test-container">
+                <h3 class="text-white font-semibold text-sm mb-4">🧪 Test API</h3>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-gray-500 uppercase tracking-wider mb-2 block">Mode</label>
+                        <select id="mode">
+                            <option value="concise">⚡ Concise</option>
+                            <option value="copilot">🤖 Copilot</option>
+                            <option value="deep_research">🔬 Deep Research</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 uppercase tracking-wider mb-2 block">Focus</label>
+                        <select id="focus">
+                            <option value="internet">🌐 Internet</option>
+                            <option value="scholar">📚 Scholar</option>
+                            <option value="writing">✍️ Writing</option>
+                            <option value="wolfram">🔢 Wolfram</option>
+                            <option value="youtube">▶️ YouTube</option>
+                            <option value="reddit">💬 Reddit</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 uppercase tracking-wider mb-2 block">Pertanyaan</label>
+                    <textarea id="prompt" placeholder="Ketik pertanyaanmu..."></textarea>
+                </div>
+
+                <button class="btn-test" onclick="testPerplexity()" id="btnTest">🚀 Execute</button>
+
+                <div class="log-box" id="logBox">
+                    <span class="info">// Result akan muncul di sini...</span>
+                </div>
+
+                <div class="sources-box" id="sourcesBox"></div>
+
+                <div class="api-url-box" id="apiUrlBox" style="display:none;"></div>
+                <button class="btn-copy" id="btnCopy" style="display:none;" onclick="copyApiUrl()">📋 Copy API URL</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/public/js/sidebar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof Sidebar !== 'undefined') Sidebar.render('ai');
+        });
+
+        let currentUrl = '';
+
+        async function testPerplexity() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const mode = document.getElementById('mode').value;
+            const focus = document.getElementById('focus').value;
+            const btn = document.getElementById('btnTest');
+            const logBox = document.getElementById('logBox');
+            const sourcesBox = document.getElementById('sourcesBox');
+
+            if (!prompt) { logBox.innerHTML = '<span class="error">❌ Masukkan pertanyaan dulu!</span>'; return; }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Mencari...';
+            logBox.innerHTML = '<span class="info">// Menunggu respon...</span>';
+
+            currentUrl = `/api/perplexity?text=${encodeURIComponent(prompt)}&mode=${mode}&focus=${focus}`;
+
+            try {
+                const res = await fetch(currentUrl);
+                const data = await res.json();
+
+                if (data.error) {
+                    logBox.innerHTML = `<span class="error">❌ ${data.error}</span>`;
+                } else {
+                    logBox.innerHTML = data.answer || 'Tidak ada jawaban.';
+                    
+                    if (data.sources && data.sources.length > 0) {
+                        sourcesBox.innerHTML = '<p class="text-xs text-gray-500 mt-2 mb-1">📚 Sources:</p>' + 
+                            data.sources.slice(0, 5).map(s => 
+                                `<a href="${s.url}" target="_blank" class="source-link">${s.title || s.domain}</a>`
+                            ).join('');
+                    }
+                    
+                    document.getElementById('apiUrlBox').style.display = 'block';
+                    document.getElementById('apiUrlBox').textContent = window.location.origin + currentUrl;
+                    document.getElementById('btnCopy').style.display = 'inline-block';
+                }
+            } catch (e) {
+                logBox.innerHTML = `<span class="error">❌ Error: ${e.message}</span>`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🚀 Execute';
+        }
+
+        function copyApiUrl() {
+            navigator.clipboard.writeText(window.location.origin + currentUrl).then(() => {
+                const btn = document.getElementById('btnCopy');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy API URL', 2000);
+            });
+        }
+    </script>
+</body>
+</html>
