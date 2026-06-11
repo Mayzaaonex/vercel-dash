@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT.org - MayzaaDash</title>
+    <title>GPT Chat - MayzaaDash</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/public/css/style.css">
     <style>
@@ -13,7 +13,6 @@
             border-radius: 16px;
             padding: 24px;
             backdrop-filter: blur(10px);
-            margin-top: 24px;
         }
         .log-box {
             background: #0a0a0a;
@@ -103,15 +102,13 @@
     <main class="main-content">
         <div class="max-w-4xl mx-auto">
 
-            <!-- Header -->
             <div class="mb-8">
                 <h1 class="text-2xl font-extrabold text-white tracking-tight">
                     💬 GPT <span class="text-gray-400 font-light">Chat</span>
                 </h1>
-                <p class="text-xs text-gray-600 mt-1">ChatGPT.org scraper — 5 model AI gratis tanpa API key</p>
+                <p class="text-xs text-gray-600 mt-1">ChatGPT.org — 5 model AI: Claude, GPT-4o Mini, DeepSeek, Qwen, Perplexity</p>
             </div>
 
-            <!-- Test Area -->
             <div class="test-container">
                 <h3 class="text-white font-semibold text-sm mb-4">🧪 Test API</h3>
                 
@@ -133,12 +130,10 @@
 
                 <button class="btn-test" onclick="testGPT()" id="btnTest">🚀 Execute</button>
 
-                <!-- Log Result -->
                 <div class="log-box" id="logBox">
                     <span class="info">// Result akan muncul di sini...</span>
                 </div>
 
-                <!-- API URL -->
                 <div class="api-url-box" id="apiUrlBox" style="display:none;"></div>
                 <button class="btn-copy" id="btnCopy" style="display:none;" onclick="copyApiUrl()">📋 Copy API URL</button>
             </div>
