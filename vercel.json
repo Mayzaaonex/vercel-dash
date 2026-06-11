@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/public/(.*)", "dest": "/public/$1" },
+    { "src": "/maker/(.*)\\.html", "dest": "/maker/$1.html" },
+    { "src": "/maker/(.*)", "dest": "/maker/$1.html" },
+    { "src": "/downloader/(.*)\\.html", "dest": "/downloader/$1.html" },
+    { "src": "/downloader/(.*)", "dest": "/downloader/$1.html" },
+    { "src": "/ai/(.*)\\.html", "dest": "/ai/$1.html" },
+    { "src": "/ai/(.*)", "dest": "/ai/$1.html" },
+    { "src": "/stalker/(.*)\\.html", "dest": "/stalker/$1.html" },
+    { "src": "/stalker/(.*)", "dest": "/stalker/$1.html" },
+    { "src": "/tools/(.*)", "dest": "/tools/$1.html" },
+    { "src": "/search/(.*)", "dest": "/search/$1.html" },
+    { "src": "/konvert/(.*)", "dest": "/konvert/$1.html" },
+    { "src": "/(.*)", "dest": "/$1.html" }
+  ]
+}
