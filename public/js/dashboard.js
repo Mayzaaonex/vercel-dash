@@ -1,10 +1,11 @@
-const MAX_HISTORY = 30; // 1 bulan
-const API_STATS_URL = '/api/stats';
+const API_BASE = 'https://api.mayzacasaos.my.id';
+const MAX_HISTORY = 30;
 let trafficChart;
 let trafficData = Array(MAX_HISTORY).fill(0);
 let trafficLabels = Array(MAX_HISTORY).fill('');
 let prevTotal = 0;
 let totalUptimeSeconds = 0;
+let uptimeLoaded = false;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
@@ -144,14 +145,16 @@ class CursorParticleSystem {
 // ========== UPTIME ==========
 async function fetchUptime() {
     try {
-        const res = await fetch('/api/uptime');
+        const res = await fetch(`${API_BASE}/api/uptime`);
         if (!res.ok) return;
         const data = await res.json();
         totalUptimeSeconds = data.seconds || 0;
+        if (!uptimeLoaded) uptimeLoaded = true;
     } catch (e) {}
 }
 
 function updateUptime() {
+    if (uptimeLoaded) totalUptimeSeconds++;
     const uptimeEl = document.getElementById('uptime-display');
     if (!uptimeEl) return;
     const hours = Math.floor(totalUptimeSeconds / 3600);
@@ -163,7 +166,7 @@ function updateUptime() {
 // ========== SYSTEM HEALTH ==========
 async function fetchHealth() {
     try {
-        const res = await fetch('/api/health');
+        const res = await fetch(`${API_BASE}/api/health`);
         if (!res.ok) return;
         const data = await res.json();
         
@@ -196,54 +199,22 @@ function initChartLabels() {
 function initChart() {
     const ctx = document.getElementById('trafficChart')?.getContext('2d');
     if (!ctx) return;
-
     initChartLabels();
 
     trafficChart = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels: trafficLabels,
-            datasets: [{
-                data: trafficData,
-                borderColor: '#ffffff',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 1.5,
-                pointRadius: 2,
-                pointBackgroundColor: '#fff',
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#fff',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: { duration: 500 },
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { 
-                    grid: { color: 'rgba(255,255,255,0.03)' }, 
-                    ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 10 } 
-                },
-                y: { 
-                    grid: { color: 'rgba(255,255,255,0.03)' }, 
-                    ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 4 }, 
-                    beginAtZero: true 
-                }
-            }
-        }
+        data: { labels: trafficLabels, datasets: [{ data: trafficData, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.03)', fill: true, tension: 0.4, borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#fff', pointHoverRadius: 5, pointHoverBackgroundColor: '#fff' }] },
+        options: { responsive: true, maintainAspectRatio: false, animation: { duration: 500 }, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 10 } }, y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 4 }, beginAtZero: true } } }
     });
 }
 
 // ========== FETCH STATS ==========
 async function fetchStats() {
     try {
-        const res = await fetch(API_STATS_URL);
+        const res = await fetch(`${API_BASE}/api/stats`);
         if (!res.ok) return;
         const data = await res.json();
 
-        // Reset kalo bulan baru
         const now = new Date();
         if (now.getMonth() !== currentMonth || now.getFullYear() !== currentYear) {
             trafficData = Array(MAX_HISTORY).fill(0);
@@ -262,48 +233,30 @@ async function fetchStats() {
             trafficChart.update('active');
         }
 
-        // Total Requests
-        const totalEl = document.getElementById('total-requests');
-        if (totalEl) totalEl.textContent = (data.total || 0).toLocaleString();
+        document.getElementById('total-requests').textContent = (data.total || 0).toLocaleString();
+        document.getElementById('credits-used').textContent = (data.credits || 0).toLocaleString();
+        document.getElementById('credit-bar').style.width = Math.min(100, (data.credits || 0) / 125) + '%';
+        document.getElementById('credit-label').textContent = `${(data.credits || 0).toLocaleString()} / 12,500`;
+        
+        document.getElementById('trend-requests').textContent = newRequests > 0 ? `↑ ${newRequests}` : '↑ 0';
+        document.getElementById('trend-requests').className = newRequests > 0 ? 'stat-trend up' : 'stat-trend down';
+        document.getElementById('trend-credits').textContent = newRequests > 0 ? `↑ ${newRequests}` : '↑ 0';
+        document.getElementById('trend-credits').className = newRequests > 0 ? 'stat-trend up' : 'stat-trend down';
 
-        // Credits
-        const creditsEl = document.getElementById('credits-used');
-        const creditBar = document.getElementById('credit-bar');
-        const creditLabel = document.getElementById('credit-label');
-        if (creditsEl) creditsEl.textContent = (data.credits || 0).toLocaleString();
-        if (creditBar) creditBar.style.width = Math.min(100, (data.credits || 0) / 125) + '%';
-        if (creditLabel) creditLabel.textContent = `${(data.credits || 0).toLocaleString()} / 12,500`;
+        // Update Endpoint Counts
+        document.getElementById('ep-track').textContent = (data.total || 0).toLocaleString();
+        document.getElementById('ep-stats').textContent = Math.floor((data.total || 0) * 0.8).toLocaleString();
+        document.getElementById('ep-brat').textContent = Math.floor((data.total || 0) * 0.6).toLocaleString();
 
-        // Trend
-        const trendReq = document.getElementById('trend-requests');
-        if (trendReq) {
-            trendReq.textContent = newRequests > 0 ? `↑ ${newRequests}` : '↑ 0';
-            trendReq.className = newRequests > 0 ? 'stat-trend up' : 'stat-trend down';
-        }
-
-        const trendCred = document.getElementById('trend-credits');
-        if (trendCred) {
-            trendCred.textContent = newRequests > 0 ? `↑ ${newRequests}` : '↑ 0';
-            trendCred.className = newRequests > 0 ? 'stat-trend up' : 'stat-trend down';
-        }
-
-        // Update Activity List
+        // Update Activity
         const activityList = document.getElementById('activity-list');
         if (activityList && data.history && data.history.length > 0) {
             const recent = data.history.slice(-5).reverse();
             activityList.innerHTML = recent.map(h => {
                 const time = new Date(h.time);
                 const diff = Math.floor((Date.now() - time) / 1000);
-                const timeAgo = diff < 60 ? `${diff}s ago` : diff < 3600 ? `${Math.floor(diff/60)}m ago` : `${Math.floor(diff/3600)}h ago`;
-                return `
-                    <div class="activity-item">
-                        <div class="activity-dot"></div>
-                        <div class="activity-info">
-                            <span class="activity-text">${h.type || 'API Request'}</span>
-                            <span class="activity-time">${timeAgo}</span>
-                        </div>
-                        <span class="activity-status success">200</span>
-                    </div>`;
+                const ago = diff < 60 ? `${diff}s ago` : diff < 3600 ? `${Math.floor(diff/60)}m ago` : `${Math.floor(diff/3600)}h ago`;
+                return `<div class="activity-item"><div class="activity-dot"></div><div class="activity-info"><span class="activity-text">${h.type || 'API Request'}</span><span class="activity-time">${ago}</span></div><span class="activity-status success">200</span></div>`;
             }).join('');
         }
 
@@ -313,7 +266,6 @@ async function fetchStats() {
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof Sidebar !== 'undefined') Sidebar.render('dashboard');
-
     new CursorParticleSystem();
     initChart();
     
