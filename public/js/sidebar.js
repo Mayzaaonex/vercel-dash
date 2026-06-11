@@ -1,34 +1,66 @@
 class Sidebar {
     static render(activePage = 'dashboard') {
         const sidebarHTML = `
-            <button class="hamburger-btn" onclick="Sidebar.toggle()">☰</button>
+            <button class="hamburger-btn" onclick="Sidebar.toggle()">
+                <img src="https://cdn-icons-png.flaticon.com/512/7710/7710488.png" alt="menu" class="hamburger-icon">
+            </button>
             <div class="sidebar-overlay" id="sidebar-overlay" onclick="Sidebar.close()"></div>
-            
-            <aside class="sidebar w-56 flex flex-col py-6 px-4 shrink-0" id="sidebar">
-                <div class="px-2 mb-8 flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+
+            <!-- Desktop Top Bar -->
+            <nav class="topbar-desktop" id="topbar-desktop">
+                <div class="topbar-brand">
+                    <div class="brand-logo">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
                             <path d="M13 3L4 14h8l-1 7 9-11h-8l1-7z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <a href="/" class="text-sm font-bold text-white no-underline" onclick="Sidebar.close()">DASHBOARD</a>
+                    <a href="/" class="brand-text">API-MAYZAA</a>
+                </div>
+                <div class="topbar-links">
+                    <a href="/" class="topbar-link ${activePage === 'dashboard' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828791.png" alt="dashboard" class="link-icon">
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/maker/" class="topbar-link ${activePage === 'maker' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png" alt="maker" class="link-icon">
+                        <span>Maker</span>
+                    </a>
+                    <a href="/downloader/" class="topbar-link ${activePage === 'downloader' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920186.png" alt="downloader" class="link-icon">
+                        <span>Downloader</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Mobile Sidebar -->
+            <aside class="sidebar w-56 flex flex-col py-6 px-4 shrink-0" id="sidebar">
+                <div class="px-2 mb-8 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-white to-gray-600 flex items-center justify-center">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+                            <path d="M13 3L4 14h8l-1 7 9-11h-8l1-7z" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <a href="/" class="text-sm font-bold text-white no-underline">API-MAYZAA</a>
                 </div>
 
                 <nav class="flex flex-col gap-1 flex-1">
-                    <div class="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-3 mb-2">Main Menu</div>
-                    
-                    <a href="/" class="nav-link ${activePage === 'dashboard' ? 'active' : ''}" onclick="Sidebar.close()">
-                        <span>📊</span> Dashboard
+                    <div class="text-[10px] font-bold text-gray-600 uppercase tracking-widest px-3 mb-2">Main Menu</div>
+
+                    <a href="/" class="nav-link ${activePage === 'dashboard' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828791.png" alt="dashboard" class="nav-icon">
+                        Dashboard
                     </a>
-                    <a href="/maker/" class="nav-link ${activePage === 'maker' ? 'active' : ''}" onclick="Sidebar.close()">
-                        <span>⚙️</span> Maker API
+                    <a href="/maker/" class="nav-link ${activePage === 'maker' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png" alt="maker" class="nav-icon">
+                        Maker API
                     </a>
-                    <a href="/downloader/" class="nav-link ${activePage === 'downloader' ? 'active' : ''}" onclick="Sidebar.close()">
-                        <span>⬇️</span> Downloader
+                    <a href="/downloader/" class="nav-link ${activePage === 'downloader' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920186.png" alt="downloader" class="nav-icon">
+                        Downloader
                     </a>
                 </nav>
 
-                <div class="text-[10px] text-slate-700 px-2"></div>
+                <div class="text-[10px] text-gray-700 px-2">Copyright &copy; RianModss</div>
             </aside>
         `;
 
