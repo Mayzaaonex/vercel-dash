@@ -93,6 +93,17 @@ function updateActivity(history) {
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof Sidebar !== 'undefined') Sidebar.render('dashboard');
     initChart();
-    fetchStats(); fetchHealth(); fetchUptime().then(() => { updateUptime(); setInterval(updateUptime, 1000); });
-    setInterval(fetchStats, 3000); setInterval(fetchHealth, 5000); setInterval(fetchUptime, 10000);
+    fetchStats(); 
+    fetchHealth();
+    
+    // Fetch uptime + update tiap detik
+    fetchUptime().then(() => {
+        updateUptime();
+    });
+    
+    setInterval(fetchStats, 3000);
+    setInterval(fetchHealth, 5000);
+    setInterval(() => {
+        fetchUptime().then(() => updateUptime());
+    }, 1000); // ← FETCH UPTIME TIAP 1 DETIK
 });
