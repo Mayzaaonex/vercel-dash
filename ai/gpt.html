@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT.org - MayzaaDash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <style>
+        .test-container {
+            background: linear-gradient(135deg, rgba(15,15,15,0.9), rgba(10,10,10,0.95));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            margin-top: 24px;
+        }
+        .log-box {
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #4ade80;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 12px;
+        }
+        .log-box .error { color: #ef4444; }
+        .log-box .info { color: #94a3b8; }
+        textarea {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px;
+            color: #fff;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        textarea:focus { border-color: #6366f1; }
+        select {
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-test {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 12px;
+        }
+        .btn-test:hover { opacity: 0.9; }
+        .btn-test:disabled { opacity: 0.5; cursor: not-allowed; }
+        .api-url-box {
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #4ade80;
+            word-break: break-all;
+            margin-top: 8px;
+        }
+        .btn-copy {
+            font-size: 11px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #aaa;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .btn-copy:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">
+                    💬 GPT <span class="text-gray-400 font-light">Chat</span>
+                </h1>
+                <p class="text-xs text-gray-600 mt-1">ChatGPT.org scraper — 5 model AI gratis tanpa API key</p>
+            </div>
+
+            <!-- Test Area -->
+            <div class="test-container">
+                <h3 class="text-white font-semibold text-sm mb-4">🧪 Test API</h3>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 uppercase tracking-wider mb-2 block">Model</label>
+                    <select id="model">
+                        <option value="claude">🧠 Claude Haiku 4.5</option>
+                        <option value="gpt4mini">💬 GPT-4o Mini</option>
+                        <option value="deepseek">🔍 DeepSeek Chat V3</option>
+                        <option value="qwen">🤖 Qwen 2.5 72B</option>
+                        <option value="perplexity">🌐 Perplexity Sonar</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 uppercase tracking-wider mb-2 block">Pertanyaan</label>
+                    <textarea id="prompt" placeholder="Ketik pertanyaanmu..."></textarea>
+                </div>
+
+                <button class="btn-test" onclick="testGPT()" id="btnTest">🚀 Execute</button>
+
+                <!-- Log Result -->
+                <div class="log-box" id="logBox">
+                    <span class="info">// Result akan muncul di sini...</span>
+                </div>
+
+                <!-- API URL -->
+                <div class="api-url-box" id="apiUrlBox" style="display:none;"></div>
+                <button class="btn-copy" id="btnCopy" style="display:none;" onclick="copyApiUrl()">📋 Copy API URL</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/public/js/sidebar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof Sidebar !== 'undefined') Sidebar.render('ai');
+        });
+
+        let currentUrl = '';
+
+        async function testGPT() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const model = document.getElementById('model').value;
+            const btn = document.getElementById('btnTest');
+            const logBox = document.getElementById('logBox');
+
+            if (!prompt) { logBox.innerHTML = '<span class="error">❌ Masukkan pertanyaan dulu!</span>'; return; }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Loading...';
+            logBox.innerHTML = '<span class="info">// Menunggu respon...</span>';
+
+            currentUrl = `/ai/gpt?text=${encodeURIComponent(prompt)}&model=${model}`;
+
+            try {
+                const res = await fetch(currentUrl);
+                const data = await res.json();
+
+                if (data.success) {
+                    logBox.innerHTML = `<span class="info">// Model: ${data.model}</span>\n<span class="info">// Status: 200 OK</span>\n\n${data.content}`;
+                    document.getElementById('apiUrlBox').style.display = 'block';
+                    document.getElementById('apiUrlBox').textContent = window.location.origin + currentUrl;
+                    document.getElementById('btnCopy').style.display = 'inline-block';
+                } else {
+                    logBox.innerHTML = `<span class="error">❌ Error: ${data.error}</span>`;
+                }
+            } catch (e) {
+                logBox.innerHTML = `<span class="error">❌ Error: ${e.message}</span>`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🚀 Execute';
+        }
+
+        function copyApiUrl() {
+            const fullUrl = window.location.origin + currentUrl;
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                const btn = document.getElementById('btnCopy');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy API URL', 2000);
+            });
+        }
+    </script>
+</body>
+</html>

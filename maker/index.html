@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maker API - MayzaaDash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">
+                    ⚙️ Maker <span class="text-gray-400 font-light">API</span>
+                </h1>
+                <p class="text-xs text-gray-600 mt-1">Kumpulan API untuk generate gambar, teks, dan stiker.</p>
+            </div>
+
+            <!-- Maker Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                <!-- Brat Generator -->
+                <a href="/maker/brat.html" class="api-menu-card">
+                    <span class="text-4xl mb-4 block">🟢</span>
+                    <h3 class="text-white font-semibold text-sm mb-2">Brat Generator</h3>
+                    <p class="text-xs text-slate-500 mb-3">Buat teks gaya Brat dengan background hijau khas.</p>
+                    <code class="text-[10px] bg-slate-950 text-slate-500 px-3 py-1 rounded-full mono">/maker/brat</code>
+                </a>
+
+                <!-- Text Pro -->
+                <a href="/maker/textpro.html" class="api-menu-card">
+                    <span class="text-4xl mb-4 block">📝</span>
+                    <h3 class="text-white font-semibold text-sm mb-2">Text Pro</h3>
+                    <p class="text-xs text-slate-500 mb-3">Text styling premium dengan berbagai efek keren.</p>
+                    <code class="text-[10px] bg-slate-950 text-slate-500 px-3 py-1 rounded-full mono">/maker/textpro</code>
+                </a>
+
+                <!-- Image Generator -->
+                <a href="/maker/image.html" class="api-menu-card">
+                    <span class="text-4xl mb-4 block">🖼️</span>
+                    <h3 class="text-white font-semibold text-sm mb-2">Image Generator</h3>
+                    <p class="text-xs text-slate-500 mb-3">Generate gambar AI dengan prompt custom.</p>
+                    <code class="text-[10px] bg-slate-950 text-slate-500 px-3 py-1 rounded-full mono">/maker/image</code>
+                </a>
+
+                <!-- Sticker Maker -->
+                <a href="/maker/sticker.html" class="api-menu-card">
+                    <span class="text-4xl mb-4 block">🌟</span>
+                    <h3 class="text-white font-semibold text-sm mb-2">Sticker Maker</h3>
+                    <p class="text-xs text-slate-500 mb-3">Buat stiker WhatsApp dari gambar atau teks.</p>
+                    <code class="text-[10px] bg-slate-950 text-slate-500 px-3 py-1 rounded-full mono">/maker/sticker</code>
+                </a>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/public/js/sidebar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof Sidebar !== 'undefined') Sidebar.render('maker');
+        });
+    </script>
+</body>
+</html>
