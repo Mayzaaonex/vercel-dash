@@ -29,6 +29,26 @@ class Sidebar {
                         <img src="https://cdn-icons-png.flaticon.com/512/2920/2920186.png" alt="downloader" class="link-icon">
                         <span>Downloader</span>
                     </a>
+                    <a href="/ai/" class="topbar-link ${activePage === 'ai' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/11697/11697487.png" alt="ai" class="link-icon">
+                        <span>AI</span>
+                    </a>
+                    <a href="/stalker/" class="topbar-link ${activePage === 'stalker' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/709/709699.png" alt="stalker" class="link-icon">
+                        <span>Stalker</span>
+                    </a>
+                    <a href="/tools/" class="topbar-link ${activePage === 'tools' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="tools" class="link-icon">
+                        <span>Tools</span>
+                    </a>
+                    <a href="/search/" class="topbar-link ${activePage === 'search' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/954/954591.png" alt="search" class="link-icon">
+                        <span>Search</span>
+                    </a>
+                    <a href="/konvert/" class="topbar-link ${activePage === 'konvert' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920247.png" alt="konvert" class="link-icon">
+                        <span>Konvert</span>
+                    </a>
                 </div>
             </nav>
 
@@ -57,6 +77,26 @@ class Sidebar {
                     <a href="/downloader/" class="nav-link ${activePage === 'downloader' ? 'active' : ''}">
                         <img src="https://cdn-icons-png.flaticon.com/512/2920/2920186.png" alt="downloader" class="nav-icon">
                         Downloader
+                    </a>
+                    <a href="/ai/" class="nav-link ${activePage === 'ai' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/11697/11697487.png" alt="ai" class="nav-icon">
+                        AI Chat
+                    </a>
+                    <a href="/stalker/" class="nav-link ${activePage === 'stalker' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/709/709699.png" alt="stalker" class="nav-icon">
+                        Stalker
+                    </a>
+                    <a href="/tools/" class="nav-link ${activePage === 'tools' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="tools" class="nav-icon">
+                        Tools
+                    </a>
+                    <a href="/search/" class="nav-link ${activePage === 'search' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/954/954591.png" alt="search" class="nav-icon">
+                        Search
+                    </a>
+                    <a href="/konvert/" class="nav-link ${activePage === 'konvert' ? 'active' : ''}">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920247.png" alt="konvert" class="nav-icon">
+                        Konvert
                     </a>
                 </nav>
 
