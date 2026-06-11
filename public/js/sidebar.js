@@ -14,7 +14,7 @@ class Sidebar {
                             <path d="M13 3L4 14h8l-1 7 9-11h-8l1-7z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <a href="/" class="brand-text">API-MAYZAA</a>
+                    <a href="/" class="brand-text">DASHBOARD</a>
                 </div>
                 <div class="topbar-links">
                     <a href="/" class="topbar-link ${activePage === 'dashboard' ? 'active' : ''}">
