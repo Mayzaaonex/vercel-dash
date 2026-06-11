@@ -14,7 +14,7 @@
     { "src": "/public/(.*)", "dest": "/public/$1" },
     { "src": "/maker/(.*)", "dest": "/maker/$1" },
     { "src": "/downloader/(.*)", "dest": "/downloader/$1" },
-    { "src": "/ai/gpt", "dest": "/ai/gpt.py" },
+    { "src": "/api/gpt", "dest": "/api/gpt.py" },
     { "src": "/ai/(.*)", "dest": "/ai/$1" },
     { "src": "/stalker/(.*)", "dest": "/stalker/$1" },
     { "src": "/(.*)", "dest": "/$1" }

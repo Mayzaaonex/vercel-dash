@@ -161,7 +161,7 @@
             btn.textContent = '⏳ Loading...';
             logBox.innerHTML = '<span class="info">// Menunggu respon...</span>';
 
-            currentUrl = `/ai/gpt?text=${encodeURIComponent(prompt)}&model=${model}`;
+            currentUrl = `/api/gpt?text=${encodeURIComponent(prompt)}&model=${model}`;
 
             try {
                 const res = await fetch(currentUrl);

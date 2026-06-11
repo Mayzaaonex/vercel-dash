@@ -45,23 +45,17 @@ def build_headers(extra=None):
         "Upgrade-Insecure-Requests": "1",
         "Cache-Control": "no-cache",
     }
-    if extra:
-        h.update(extra)
+    if extra: h.update(extra)
     return h
 
 def get_deep_session():
     fp = random_fp()
     s = curlreq.Session()
     cookie_jar = {}
-
     r1 = s.get(BASE, impersonate=fp, headers=build_headers(), timeout=30)
-    for k, v in r1.cookies.items():
-        cookie_jar[k] = v
-
+    for k, v in r1.cookies.items(): cookie_jar[k] = v
     r2 = s.get(f"{BASE}/chat/", impersonate=fp, headers=build_headers({"Referer": BASE}), timeout=30)
-    for k, v in r2.cookies.items():
-        cookie_jar[k] = v
-
+    for k, v in r2.cookies.items(): cookie_jar[k] = v
     cookie_str = "; ".join([f"{k}={v}" for k, v in cookie_jar.items()])
     return s, cookie_str, fp
 
@@ -80,53 +74,33 @@ def iter_sse(response):
 def chat(prompt, model="claude", stream=True):
     if model not in MODELS:
         return {"success": False, "error": f"Model invalid. Pilih: {', '.join(MODELS.keys())}", "creator": CREATOR}
-
     model_id = MODELS[model]
     last_error = None
     max_retries = 5
-
     for attempt in range(max_retries):
         session, cookie_str, fp = get_deep_session()
-
         api_headers = {
-            "Content-Type": "application/json",
-            "Accept": "text/event-stream",
-            "Accept-Language": random_lang(),
-            "Origin": BASE,
-            "Referer": f"{BASE}/chat/",
-            "User-Agent": random_ua(),
-            "Cookie": cookie_str,
-            "Sec-Fetch-Dest": "empty",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Site": "same-origin",
+            "Content-Type": "application/json", "Accept": "text/event-stream",
+            "Accept-Language": random_lang(), "Origin": BASE, "Referer": f"{BASE}/chat/",
+            "User-Agent": random_ua(), "Cookie": cookie_str,
+            "Sec-Fetch-Dest": "empty", "Sec-Fetch-Mode": "cors", "Sec-Fetch-Site": "same-origin",
             "Cache-Control": "no-cache",
         }
-
-        payload = {
-            "model": model_id,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-
+        payload = {"model": model_id, "messages": [{"role": "user", "content": prompt}]}
         try:
             r = session.post(API, json=payload, headers=api_headers, impersonate=fp, stream=True, timeout=180)
-
             if r.status_code in (429, 403):
                 last_error = f"HTTP {r.status_code}, attempt {attempt+1}/{max_retries}"
-                backoff = (2 ** attempt) * 6 + random.randint(3, 10)
-                time.sleep(backoff)
+                time.sleep((2 ** attempt) * 6 + random.randint(3, 10))
                 continue
-
             if r.status_code != 200:
                 last_error = f"HTTP {r.status_code}: {r.text[:300]}"
-                if attempt < max_retries - 1:
-                    time.sleep(5)
+                if attempt < max_retries - 1: time.sleep(5)
                 continue
-
             output = ""
             for line in iter_sse(r):
                 line = line.strip()
-                if not line or line.startswith(":") or not line.startswith("data:"):
-                    continue
+                if not line or line.startswith(":") or not line.startswith("data:"): continue
                 data = line[5:].strip()
                 if not data: continue
                 try:
@@ -136,19 +110,15 @@ def chat(prompt, model="claude", stream=True):
                         output += text
                         if stream: print(text, end="", flush=True)
                 except json.JSONDecodeError: pass
-
             if stream: print()
             return {"success": True, "model": model_id, "content": output, "creator": CREATOR}
-
         except Exception as e:
             last_error = str(e)
-            if attempt < max_retries - 1:
-                time.sleep(6)
-
+            if attempt < max_retries - 1: time.sleep(6)
     return {"success": False, "error": last_error or "Unknown error", "creator": CREATOR}
 
 
-# ========== VERCEL SERVERLESS HANDLER ==========
+# ========== VERCEL HANDLER ==========
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         params = urllib.parse.parse_qs(self.path.split('?')[1] if '?' in self.path else '')
@@ -162,7 +132,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({
                 "creator": CREATOR,
                 "models": {k: v for k, v in MODELS.items()},
-                "usage": "/ai/gpt?text=halo&model=gpt4mini"
+                "usage": "/api/gpt?text=halo&model=gpt4mini"
             }).encode())
             return
         
