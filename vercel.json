@@ -1,20 +1,16 @@
 {
   "version": 2,
-  "functions": {
-    "ai/gpt.py": {
-      "runtime": "python@3.11"
-    }
-  },
   "builds": [
+    { "src": "api/gpt.py", "use": "@vercel/python@4" },
     { "src": "**/*.html", "use": "@vercel/static" },
     { "src": "public/**/*", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/", "dest": "/index.html" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
+    { "src": "/api/gpt", "dest": "/api/gpt.py" },
     { "src": "/maker/(.*)", "dest": "/maker/$1" },
     { "src": "/downloader/(.*)", "dest": "/downloader/$1" },
-    { "src": "/api/gpt", "dest": "/api/gpt.py" },
     { "src": "/ai/(.*)", "dest": "/ai/$1" },
     { "src": "/stalker/(.*)", "dest": "/stalker/$1" },
     { "src": "/(.*)", "dest": "/$1" }
