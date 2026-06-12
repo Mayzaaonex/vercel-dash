@@ -339,12 +339,10 @@ async function perplexitySearch(query, options = {}) {
   return { query: q, answer: '', sources: [], media: [], related: [], error: lastError };
 }
 
+module.exports = { perplexitySearch };
+
 // ========== VERCEL HANDLER ==========
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-
   const { text, mode = 'concise', focus = 'internet' } = req.query || {};
 
   if (!text) {
@@ -352,13 +350,7 @@ module.exports = async (req, res) => {
       name: 'Perplexity AI Scraper',
       modes: MODES,
       focus: FOCUS,
-      model: MODEL,
-      usage: '/api/perplexity?text=apa+itu+ai&mode=concise&focus=internet',
-      examples: {
-        basic: '/api/perplexity?text=latest+news',
-        scholar: '/api/perplexity?text=quantum+computing&focus=scholar',
-        copilot: '/api/perplexity?text=write+a+poem&mode=copilot&focus=writing'
-      }
+      usage: '/api/perplexity?text=halo&mode=concise&focus=internet'
     });
   }
 
