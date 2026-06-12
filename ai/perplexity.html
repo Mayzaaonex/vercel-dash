@@ -135,7 +135,7 @@
             btn.textContent = '⏳ Mencari...';
             logBox.innerHTML = '<span class="info">// Menunggu respon...</span>';
 
-            currentUrl = `/api/perplexity?text=${encodeURIComponent(prompt)}&mode=${mode}&focus=${focus}`;
+            currentUrl = `/api/perplexity-proxy?text=${encodeURIComponent(prompt)}&mode=${mode}&focus=${focus}`;
 
             try {
                 const res = await fetch(currentUrl);

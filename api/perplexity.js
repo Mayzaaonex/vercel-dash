@@ -8,9 +8,6 @@ const UA_POOL = [
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0',
-  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
 ];
 
 const MODES = ['concise', 'copilot', 'deep_research'];
@@ -89,7 +86,7 @@ async function bootstrap() {
         'sec-fetch-site': 'none',
         'upgrade-insecure-requests': '1',
       },
-    }, 10000);
+    });
     const setCookies = res.getSetCookie();
     for (const c of setCookies) captured.push(c.split(';')[0]);
   } catch {}
@@ -204,7 +201,7 @@ async function perplexitySearch(query, options = {}) {
     sources = ['web'],
     timezone = 'UTC',
     language = 'en-US',
-    retries = 5,
+    retries = 2,
   } = options;
 
   const q = String(query).trim();
@@ -212,7 +209,7 @@ async function perplexitySearch(query, options = {}) {
 
   let lastError = 'unknown error';
   for (let attempt = 0; attempt <= retries; attempt++) {
-    if (attempt > 0) await delay(1500 * attempt);
+    if (attempt > 0) await delay(2000 * attempt);
 
     const session = await bootstrap();
     const frontendUuid = crypto.randomUUID();
@@ -270,8 +267,6 @@ async function perplexitySearch(query, options = {}) {
     };
 
     const body = JSON.stringify(payload);
-    const bodyBuffer = Buffer.from(body, 'utf8');
-
     let res;
     try {
       res = await fetchBuffer('https://www.perplexity.ai/rest/sse/perplexity_ask', {
@@ -296,23 +291,17 @@ async function perplexitySearch(query, options = {}) {
           'x-perplexity-request-reason': 'ask-query-state-provider',
           'x-perplexity-request-try-number': String(attempt + 1),
           'x-request-id': requestId,
-          'content-length': String(bodyBuffer.byteLength),
+          'content-length': Buffer.byteLength(body),
         },
-        body: bodyBuffer,
-      }, 55000);
+        body,
+      }, 60000);
     } catch (e) {
       lastError = `Fetch error: ${e.message}`;
       continue;
     }
 
-    if (res.status === 403) {
-      lastError = `HTTP 403 (retry with fresh session)`;
-      await delay(500);
-      continue;
-    }
-
     if (res.status !== 200) {
-      lastError = `HTTP ${res.status}: ${res.text().slice(0, 200)}`;
+      lastError = `HTTP ${res.status}`;
       continue;
     }
 
@@ -350,27 +339,41 @@ async function perplexitySearch(query, options = {}) {
   return { query: q, answer: '', sources: [], media: [], related: [], error: lastError };
 }
 
-// ========== VERCEL HANDLER ==========
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+module.exports = { perplexitySearch };
 
-  const { text, mode = 'concise', focus = 'internet' } = req.query || {};
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const jsonFlag = args.includes('-j') || args.includes('--json');
 
-  if (!text) {
-    return res.status(200).json({
-      name: 'Perplexity AI Scraper',
-      modes: MODES,
-      focus: FOCUS,
-      usage: '/api/perplexity?text=halo&mode=concise&focus=internet',
-    });
+  let mode = 'concise';
+  let focus = 'internet';
+  let queryArgs = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '-m' && args[i + 1]) { mode = args[i + 1]; i++; }
+    else if (a === '--focus' && args[i + 1]) { focus = args[i + 1]; i++; }
+    else if (a === '-j' || a === '--json') {}
+    else { queryArgs.push(a); }
   }
 
-  try {
-    const result = await perplexitySearch(text, { mode, focus });
-    return res.status(200).json(result);
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
+  const query = queryArgs.join(' ');
+  if (!query) {
+    console.log('Usage: node perplexity.js "pertanyaan" [-m mode] [--focus focus] [-j]');
+    console.log('Modes: ' + MODES.join(', '));
+    console.log('Focus: ' + FOCUS.join(', '));
+    console.log('Model: turbo (free)');
+    process.exit(0);
   }
-};
+
+  perplexitySearch(query, { mode, focus })
+    .then(result => {
+      if (jsonFlag) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        if (result.error) console.log('Error:', result.error);
+        else console.log(result.answer);
+      }
+    })
+    .catch(e => console.error('Fatal:', e.message));
+}
