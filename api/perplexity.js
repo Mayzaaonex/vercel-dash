@@ -86,7 +86,7 @@ async function bootstrap() {
         'sec-fetch-site': 'none',
         'upgrade-insecure-requests': '1',
       },
-    });
+    }, 10000);
     const setCookies = res.getSetCookie();
     for (const c of setCookies) captured.push(c.split(';')[0]);
   } catch {}
@@ -209,7 +209,7 @@ async function perplexitySearch(query, options = {}) {
 
   let lastError = 'unknown error';
   for (let attempt = 0; attempt <= retries; attempt++) {
-    if (attempt > 0) await delay(2000 * attempt);
+    if (attempt > 0) await delay(1500 * attempt); // ⚡ lebih singkat dari 2000
 
     const session = await bootstrap();
     const frontendUuid = crypto.randomUUID();
@@ -267,6 +267,8 @@ async function perplexitySearch(query, options = {}) {
     };
 
     const body = JSON.stringify(payload);
+    const bodyBuffer = Buffer.from(body, 'utf8'); // ✅ fix: pakai Buffer biar content-length akurat
+
     let res;
     try {
       res = await fetchBuffer('https://www.perplexity.ai/rest/sse/perplexity_ask', {
@@ -291,17 +293,24 @@ async function perplexitySearch(query, options = {}) {
           'x-perplexity-request-reason': 'ask-query-state-provider',
           'x-perplexity-request-try-number': String(attempt + 1),
           'x-request-id': requestId,
-          'content-length': Buffer.byteLength(body),
+          'content-length': String(bodyBuffer.byteLength), // ✅ fix: cast ke String
         },
-        body,
-      }, 60000);
+        body: bodyBuffer, // ✅ fix: kirim Buffer, bukan string
+      }, 55000); // ✅ sedikit di bawah Vercel max biar ga dipotong
     } catch (e) {
       lastError = `Fetch error: ${e.message}`;
       continue;
     }
 
+    if (res.status === 403) {
+      // ✅ 403 biasanya cookie stale, langsung retry dengan session baru
+      lastError = `HTTP 403 (blocked, retrying with fresh session)`;
+      await delay(500);
+      continue;
+    }
+
     if (res.status !== 200) {
-      lastError = `HTTP ${res.status}`;
+      lastError = `HTTP ${res.status}: ${res.text().slice(0, 200)}`;
       continue;
     }
 
@@ -339,18 +348,22 @@ async function perplexitySearch(query, options = {}) {
   return { query: q, answer: '', sources: [], media: [], related: [], error: lastError };
 }
 
-module.exports = { perplexitySearch };
-
 // ========== VERCEL HANDLER ==========
+// ✅ Export handler saja (hapus double module.exports)
 module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
   const { text, mode = 'concise', focus = 'internet' } = req.query || {};
 
+  // Kalau ga ada ?text=, tampilkan info endpoint
   if (!text) {
     return res.status(200).json({
       name: 'Perplexity AI Scraper',
       modes: MODES,
       focus: FOCUS,
-      usage: '/api/perplexity?text=halo&mode=concise&focus=internet'
+      usage: '/api/perplexity?text=halo&mode=concise&focus=internet',
     });
   }
 
