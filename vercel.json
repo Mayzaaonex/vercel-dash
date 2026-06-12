@@ -1,18 +1,22 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/gpt.py", "use": "@vercel/python@4" },
+    { "src": "api/perplexity.js", "use": "@vercel/node" },
     { "src": "**/*.html", "use": "@vercel/static" },
     { "src": "public/**/*", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/", "dest": "/index.html" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
-    { "src": "/api/gpt", "dest": "/api/gpt.py" },
+    { "src": "/api/perplexity", "dest": "/api/perplexity.js" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/maker/(.*)", "dest": "/maker/$1" },
     { "src": "/downloader/(.*)", "dest": "/downloader/$1" },
     { "src": "/ai/(.*)", "dest": "/ai/$1" },
     { "src": "/stalker/(.*)", "dest": "/stalker/$1" },
+    { "src": "/tools/(.*)", "dest": "/tools/$1" },
+    { "src": "/search/(.*)", "dest": "/search/$1" },
+    { "src": "/konvert/(.*)", "dest": "/konvert/$1" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }

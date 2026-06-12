@@ -339,41 +339,33 @@ async function perplexitySearch(query, options = {}) {
   return { query: q, answer: '', sources: [], media: [], related: [], error: lastError };
 }
 
-module.exports = { perplexitySearch };
+// ========== VERCEL HANDLER ==========
+module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-if (require.main === module) {
-  const args = process.argv.slice(2);
-  const jsonFlag = args.includes('-j') || args.includes('--json');
+  const { text, mode = 'concise', focus = 'internet' } = req.query || {};
 
-  let mode = 'concise';
-  let focus = 'internet';
-  let queryArgs = [];
-
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (a === '-m' && args[i + 1]) { mode = args[i + 1]; i++; }
-    else if (a === '--focus' && args[i + 1]) { focus = args[i + 1]; i++; }
-    else if (a === '-j' || a === '--json') {}
-    else { queryArgs.push(a); }
-  }
-
-  const query = queryArgs.join(' ');
-  if (!query) {
-    console.log('Usage: node perplexity.js "pertanyaan" [-m mode] [--focus focus] [-j]');
-    console.log('Modes: ' + MODES.join(', '));
-    console.log('Focus: ' + FOCUS.join(', '));
-    console.log('Model: turbo (free)');
-    process.exit(0);
-  }
-
-  perplexitySearch(query, { mode, focus })
-    .then(result => {
-      if (jsonFlag) {
-        console.log(JSON.stringify(result, null, 2));
-      } else {
-        if (result.error) console.log('Error:', result.error);
-        else console.log(result.answer);
+  if (!text) {
+    return res.status(200).json({
+      name: 'Perplexity AI Scraper',
+      modes: MODES,
+      focus: FOCUS,
+      model: MODEL,
+      usage: '/api/perplexity?text=apa+itu+ai&mode=concise&focus=internet',
+      examples: {
+        basic: '/api/perplexity?text=latest+news',
+        scholar: '/api/perplexity?text=quantum+computing&focus=scholar',
+        copilot: '/api/perplexity?text=write+a+poem&mode=copilot&focus=writing'
       }
-    })
-    .catch(e => console.error('Fatal:', e.message));
-}
+    });
+  }
+
+  try {
+    const result = await perplexitySearch(text, { mode, focus });
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+};
